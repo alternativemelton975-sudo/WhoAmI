@@ -1,13 +1,13 @@
 {
-    "IdentityCreator": {
-        "Name": "Identity Creator",
-        "Description": "Creates an identity for the user.",
-        "Version": "1.0.0",
-        "Author": "Your Name",
-        "License": "MIT"
-    },
-    "IdentityCreatorSchema": {
-                "userId": "string",
-                "identityType": "string"}
-        }
-    
+  "IdentityCreator": {
+    "Name": "Identity Creator",
+    "Description": "Creates an identity for the user.",
+    "Version": "1.0.0",
+    "Author": "Your Name",
+    "License": "MIT"
+  },
+  "IdentityCreatorSchema": {
+    "userId": "string",
+    "identityType": "string"
+  }
+}
