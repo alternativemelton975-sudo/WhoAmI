@@ -1,10 +1,16 @@
 import json
 
+# -----------------------------
+# SignalType
+# -----------------------------
 class SignalType:
     def __init__(self, type_name):
         self.type_name = type_name
 
 
+# -----------------------------
+# Base Creator class
+# -----------------------------
 class Creator:
     def __init__(self, name):
         self.name = name
@@ -12,12 +18,18 @@ class Creator:
         self.outputs = {}
         self.output_colors = {}
 
+    # -----------------------------
+    # Input / Output definitions
+    # -----------------------------
     def add_input(self, name, signal_type):
         self.inputs[name] = {"type": signal_type, "value": None}
 
     def add_output(self, name, signal_type):
         self.outputs[name] = {"type": signal_type, "value": None}
 
+    # -----------------------------
+    # Input / Output values
+    # -----------------------------
     def set_input(self, name, value):
         self.inputs[name]["value"] = value
 
@@ -30,14 +42,20 @@ class Creator:
     def get_output(self, name):
         return self.outputs[name]["value"]
 
+    # -----------------------------
+    # Output color
+    # -----------------------------
     def set_output_color(self, name, color_tuple):
         self.output_colors[name] = color_tuple
 
     def get_output_color(self, name):
         return self.output_colors.get(name)
 
+    # -----------------------------
+    # JSON Serialization
+    # -----------------------------
     def to_json(self):
-        # Convert SignalType objects into strings
+        # Convert SignalType objects into JSON-safe strings
         safe_inputs = {
             key: {
                 "type": value["type"].type_name,
@@ -55,6 +73,7 @@ class Creator:
         }
 
         data = {
+            "class": self.__class__.__name__,
             "name": self.name,
             "inputs": safe_inputs,
             "outputs": safe_outputs,
@@ -63,12 +82,23 @@ class Creator:
 
         return json.dumps(data)
 
+    # -----------------------------
+    # JSON Loading
+    # -----------------------------
     @staticmethod
     def from_json(json_data):
         data = json.loads(json_data)
-        creator = Creator(data["name"])
 
-        # Rebuild SignalType objects
+        class_name = data.get("class", "Creator")
+
+        # Dynamically restore correct subclass
+        if class_name == "IdentityCreator":
+            from IdentityCreator import IdentityCreator
+            creator = IdentityCreator(data["name"])
+        else:
+            creator = Creator(data["name"])
+
+        # Restore inputs
         creator.inputs = {
             key: {
                 "type": SignalType(value["type"]),
@@ -77,6 +107,7 @@ class Creator:
             for key, value in data["inputs"].items()
         }
 
+        # Restore outputs
         creator.outputs = {
             key: {
                 "type": SignalType(value["type"]),
