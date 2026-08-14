@@ -37,12 +37,30 @@ class Creator:
         return self.output_colors.get(name)
 
     def to_json(self):
+        # Convert SignalType objects into strings
+        safe_inputs = {
+            key: {
+                "type": value["type"].type_name,
+                "value": value["value"]
+            }
+            for key, value in self.inputs.items()
+        }
+
+        safe_outputs = {
+            key: {
+                "type": value["type"].type_name,
+                "value": value["value"]
+            }
+            for key, value in self.outputs.items()
+        }
+
         data = {
             "name": self.name,
-            "inputs": self.inputs,
-            "outputs": self.outputs,
+            "inputs": safe_inputs,
+            "outputs": safe_outputs,
             "output_colors": self.output_colors
         }
+
         return json.dumps(data)
 
     @staticmethod
@@ -50,8 +68,23 @@ class Creator:
         data = json.loads(json_data)
         creator = Creator(data["name"])
 
-        creator.inputs = data["inputs"]
-        creator.outputs = data["outputs"]
+        # Rebuild SignalType objects
+        creator.inputs = {
+            key: {
+                "type": SignalType(value["type"]),
+                "value": value["value"]
+            }
+            for key, value in data["inputs"].items()
+        }
+
+        creator.outputs = {
+            key: {
+                "type": SignalType(value["type"]),
+                "value": value["value"]
+            }
+            for key, value in data["outputs"].items()
+        }
+
         creator.output_colors = data["output_colors"]
 
         return creator
