@@ -19,6 +19,10 @@ class IdentityCreator(rcs.Creator):
 def create_identity(name):
     return IdentityCreator(name)
 
+
+# -----------------------------
+# Runtime test
+# -----------------------------
 process = create_identity("Identity")
 
 process.set_input("input", "Hello, World!")
@@ -33,11 +37,9 @@ print(output_color)  # Should print (255, 25, 25)
 json_data = process.to_json()
 print(json_data)
 
-
 with open("identity_process.json", "w") as f:
     f.write(json_data)
 
-#
 with open("identity_process.json", "r") as f:
     json_data = f.read()
 
