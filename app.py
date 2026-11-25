@@ -1,381 +1,193 @@
-from flask import Flask, request
-from datetime import datetime
+from flask import Flask, request, render_template_string, jsonify
 import random
+from datetime import datetime
 
 app = Flask(__name__)
 
-heroes = {}
-
-POWER_MAP = {
-    "Warrior": "Lightning",
-    "Mage": "Arcane Magic",
-    "Ranger": "Nature",
-    "Paladin": "Holy Light",
-    "Assassin": "Shadow"
-}
+characters = {}
 
 
-def write_log(hero):
+class Character:
+    """Represents a hero character with stats and progression."""
 
-    with open("hero_logs.txt", "a") as log:
+    def __init__(self, name: str, power: str):
+        self.name = name
+        self.power = power
+        self.level = 1
+        self.experience = 0
 
-        log.write("\n")
-        log.write("=" * 50 + "\n")
-        log.write(f"Created: {datetime.now()}\n")
-        log.write(f"Hero: {hero['name']}\n")
-        log.write(f"Class: {hero['class']}\n")
-        log.write(f"Trait: {hero['trait']}\n")
-        log.write(f"Weapon: {hero['weapon']}\n")
-        log.write(f"Power: {hero['power']}\n")
-        log.write(f"Total Power: {hero['total_power']}\n")
-        log.write("=" * 50 + "\n")
-
-
-@app.route("/", methods=["GET", "POST"])
-def home():
-
-    result = ""
-
-    if request.method == "POST":
-
-        name = request.form.get("name")
-        hero_class = request.form.get("class")
-        trait = request.form.get("trait")
-        weapon = request.form.get("weapon")
-
-        strength = random.randint(5, 15)
-        intelligence = random.randint(5, 15)
-        agility = random.randint(5, 15)
-        endurance = random.randint(5, 15)
-
-        if hero_class == "Warrior":
-            strength += 10
-            endurance += 5
-
-        elif hero_class == "Mage":
-            intelligence += 10
-
-        elif hero_class == "Ranger":
-            agility += 10
-
-        elif hero_class == "Paladin":
-            strength += 5
-            endurance += 10
-
-        elif hero_class == "Assassin":
-            agility += 10
-            intelligence += 5
-
-        if trait == "Brave":
-            strength += 5
-
-        elif trait == "Wise":
-            intelligence += 5
-
-        elif trait == "Mysterious":
-            agility += 3
-            intelligence += 3
-
-        elif trait == "Loyal":
-            endurance += 5
-
-        elif trait == "Fearless":
-            strength += 3
-            endurance += 5
-
-        power = POWER_MAP.get(hero_class, "Unknown")
-
-        total_power = (
-            strength +
-            intelligence +
-            agility +
-            endurance
-        )
-
-        hero_title = random.choice([
-            "Storm Guardian",
-            "Shadow Walker",
-            "Dragon Slayer",
-            "Light Bringer",
-            "Arcane Master",
-            "Iron Defender"
-        ])
-
-        biography = (
-            f"{name} the {hero_title} is a "
-            f"{trait.lower()} {hero_class.lower()} "
-            f"who channels {power.lower()} through a "
-            f"{weapon.lower()}."
-        )
-
-        hero_data = {
-            "name": name,
-            "class": hero_class,
-            "trait": trait,
-            "weapon": weapon,
-            "power": power,
-            "strength": strength,
-            "intelligence": intelligence,
-            "agility": agility,
-            "endurance": endurance,
-            "total_power": total_power
+        self.stats = {
+            "strength": random.randint(5, 20),
+            "intelligence": random.randint(5, 20),
+            "agility": random.randint(5, 20),
+            "endurance": random.randint(5, 20),
         }
 
-        heroes[name] = hero_data
+        self.created_date = datetime.now().isoformat()
 
-        write_log(hero_data)
+    def gain_experience(self, amount):
+        self.experience += amount
 
-        result = f"""
-        <div class="card">
+        if self.experience >= 100:
+            levels = self.experience // 100
+            self.level += levels
+            self.experience %= 100
 
-            <h2>⚔ HERO IDENTITY REPORT ⚔</h2>
+            for stat in self.stats:
+                self.stats[stat] += random.randint(1, 3)
 
-            <h1>{name}</h1>
+            return f"{self.name} leveled up to Level {self.level}!"
 
-            <p><b>Title:</b> {hero_title}</p>
+        return None
 
-            <p><b>Class:</b> {hero_class}</p>
+    def total_power(self):
+        return sum(self.stats.values()) + (self.level * 10)
 
-            <p><b>Trait:</b> {trait}</p>
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "power": self.power,
+            "level": self.level,
+            "experience": self.experience,
+            "stats": self.stats,
+            "created_date": self.created_date,
+            "total_power": self.total_power()
+        }
 
-            <p><b>Power:</b> {power}</p>
 
-            <p><b>Weapon:</b> {weapon}</p>
-
-            <hr>
-
-            <h3>Stats</h3>
-
-            <p>💪 Strength: {strength}</p>
-            <p>🧠 Intelligence: {intelligence}</p>
-            <p>🏃 Agility: {agility}</p>
-            <p>🛡 Endurance: {endurance}</p>
-
-            <p><b>Total Power:</b> {total_power}</p>
-
-            <hr>
-
-            <h3>Biography</h3>
-
-            <p>{biography}</p>
-
-        </div>
-        """
-
-    return f"""
+@app.route("/")
+def home():
+    html = """
     <!DOCTYPE html>
     <html>
-
     <head>
-
-        <title>Hero Identity Generator</title>
-
+        <title>Character Builder</title>
         <style>
-
-            body {{
-                background:#0d1117;
-                color:white;
-                font-family:Arial;
-                text-align:center;
-                padding:30px;
-            }}
-
-            .container {{
+            body{
+                font-family:Arial,sans-serif;
                 max-width:900px;
                 margin:auto;
-                background:#161b22;
-                padding:25px;
-                border-radius:15px;
-            }}
-
-            input,select {{
-                width:80%;
-                padding:12px;
-                margin:8px;
-                border:none;
-                border-radius:8px;
-            }}
-
-            button {{
-                background:#dc2626;
-                color:white;
-                padding:12px 30px;
-                border:none;
-                border-radius:8px;
-                cursor:pointer;
-            }}
-
-            button:hover {{
-                background:#b91c1c;
-            }}
-
-            .card {{
-                margin-top:20px;
-                background:#21262d;
                 padding:20px;
-                border-radius:12px;
-                text-align:left;
-            }}
-
-            a {{
-                color:gold;
-                text-decoration:none;
-            }}
-
+                background:#121212;
+                color:white;
+            }
+            input,button{
+                padding:10px;
+                margin:5px;
+            }
+            .card{
+                border:1px solid #444;
+                padding:15px;
+                margin-top:15px;
+                border-radius:10px;
+                background:#1f1f1f;
+            }
         </style>
-
     </head>
-
     <body>
+        <h1>⚔️ Character Builder ⚔️</h1>
 
-    <div class="container">
-
-        <h1>⚔ Hero Identity Generator ⚔</h1>
-
-        <p>Create your unique hero identity.</p>
-
-        <form method="POST">
-
-            <input
-                type="text"
-                name="name"
-                placeholder="Hero Name"
-                required
-            >
-
-            <br>
-
-            <select name="class">
-                <option>Warrior</option>
-                <option>Mage</option>
-                <option>Ranger</option>
-                <option>Paladin</option>
-                <option>Assassin</option>
-            </select>
-
-            <br>
-
-            <select name="trait">
-                <option>Brave</option>
-                <option>Wise</option>
-                <option>Mysterious</option>
-                <option>Loyal</option>
-                <option>Fearless</option>
-            </select>
-
-            <br>
-
-            <select name="weapon">
-                <option>Sword</option>
-                <option>Bow</option>
-                <option>Staff</option>
-                <option>Dagger</option>
-                <option>Hammer</option>
-            </select>
-
-            <br><br>
-
-            <button type="submit">
-                Generate Hero
-            </button>
-
+        <form action="/create" method="post">
+            <input name="name" placeholder="Hero Name" required>
+            <input name="power" placeholder="Power" required>
+            <button type="submit">Create Character</button>
         </form>
 
-        <br>
+        <h2>Characters</h2>
 
-        <a href="/heroes">Hero Registry</a>
-
-        <br><br>
-
-        <a href="/battle">Battle Arena</a>
-
-        <br><br>
-
-        <a href="/tournament">Tournament Mode</a>
-
-        <br><br>
-
-        <a href="/logs">Hero Logs</a>
-
-        {result}
-
-    </div>
-
+        {% for character in characters %}
+        <div class="card">
+            <h3>{{ character.name }}</h3>
+            <p><b>Power:</b> {{ character.power }}</p>
+            <p><b>Level:</b> {{ character.level }}</p>
+            <p><b>Total Power:</b> {{ character.total_power() }}</p>
+        </div>
+        {% endfor %}
     </body>
     </html>
     """
 
+    return render_template_string(
+        html,
+        characters=characters.values()
+    )
 
-@app.route("/heroes")
-def heroes_page():
 
-    output = """
-    <h1>Hero Registry</h1>
-    <a href="/">Home</a>
-    <hr>
+@app.route("/create", methods=["POST"])
+def create_character():
+    name = request.form.get("name")
+    power = request.form.get("power")
+
+    character = Character(name, power)
+
+    characters[name] = character
+
+    return f"""
+    <h1>{name} Created!</h1>
+
+    <p>Power: {power}</p>
+
+    <p>Strength: {character.stats['strength']}</p>
+    <p>Intelligence: {character.stats['intelligence']}</p>
+    <p>Agility: {character.stats['agility']}</p>
+    <p>Endurance: {character.stats['endurance']}</p>
+
+    <a href="/">Back</a>
     """
 
-    for hero in heroes.values():
 
-        output += f"""
-        <div style="
-            margin:20px;
-            padding:15px;
-            border:1px solid white;
-        ">
-            <h2>{hero['name']}</h2>
-            <p>Class: {hero['class']}</p>
-            <p>Power: {hero['power']}</p>
-            <p>Total Power: {hero['total_power']}</p>
-        </div>
-        """
-
-    return output
+@app.route("/api/characters")
+def get_characters():
+    return jsonify([
+        char.to_dict()
+        for char in characters.values()
+    ])
 
 
 @app.route("/battle")
 def battle():
+    names = list(characters.keys())
 
-    hero_names = list(heroes.keys())
+    if len(names) < 2:
+        return "Create at least two characters first."
 
-    if len(hero_names) < 2:
+    char1 = characters[names[0]]
+    char2 = characters[names[1]]
 
-        return """
-        <h1>Create at least two heroes first.</h1>
-        <a href="/">Home</a>
-        """
+    power1 = char1.total_power()
+    power2 = char2.total_power()
 
-    hero1 = heroes[hero_names[0]]
-    hero2 = heroes[hero_names[1]]
+    winner = char1 if power1 > power2 else char2
 
-    winner = (
-        hero1
-        if hero1["total_power"] > hero2["total_power"]
-        else hero2
-    )
+    experience_gain = 50 + (winner.level * 10)
 
-    return f"""
-    <h1>⚔ Battle Arena ⚔</h1>
+    winner.gain_experience(experience_gain)
 
-    <h2>{hero1['name']} VS {hero2['name']}</h2>
-
-    <p>{hero1['name']} Power: {hero1['total_power']}</p>
-    <p>{hero2['name']} Power: {hero2['total_power']}</p>
-
-    <h1>🏆 Winner: {winner['name']}</h1>
-
-    <a href="/">Home</a>
-    """
-
-
+    return {
+        "character_1": char1.name,
+        "character_2": char2.name,
+        "power_1": power1,
+        "power_2": power2,
+        "winner": winner.name,
+        "experience_awarded": experience_gain
+    }
 @app.route("/tournament")
 def tournament():
 
     if len(heroes) < 2:
 
         return """
-        <h1>Create at least two heroes first.</h1>
-        <a href="/">Home</a>
+        <html>
+        <body style="
+            background:#020617;
+            color:white;
+            text-align:center;
+            font-family:Arial;
+        ">
+            <h1>Create at least two heroes first.</h1>
+            <a href="/" style="color:gold;">Home</a>
+        </body>
+        </html>
         """
 
     contestants = list(heroes.values())
@@ -383,8 +195,85 @@ def tournament():
     random.shuffle(contestants)
 
     output = """
+    <html>
+
+    <head>
+
+    <style>
+
+    body{
+        background:#020617;
+        color:white;
+        font-family:Arial,sans-serif;
+        text-align:center;
+        padding:20px;
+    }
+
+    h1{
+        color:#38bdf8;
+    }
+
+    a{
+        color:gold;
+        text-decoration:none;
+        font-size:18px;
+    }
+
+    hr{
+        border:1px solid #38bdf8;
+    }
+
+    .battle-card{
+
+        background:#1e293b;
+
+        color:#f8fafc;
+
+        margin:15px auto;
+
+        padding:20px;
+
+        max-width:800px;
+
+        border-radius:12px;
+
+        border:2px solid #38bdf8;
+
+        box-shadow:0 0 10px #38bdf8;
+    }
+
+    .winner{
+        color:#22c55e;
+        font-weight:bold;
+    }
+
+    .champion{
+
+        background:#451a03;
+
+        color:white;
+
+        padding:25px;
+
+        margin-top:30px;
+
+        border-radius:15px;
+
+        border:3px solid gold;
+
+        box-shadow:0 0 15px gold;
+    }
+
+    </style>
+
+    </head>
+
+    <body>
+
     <h1>⚔ HERO TOURNAMENT ⚔</h1>
-    <a href="/">Home</a>
+
+    <a href="/">⬅ Home</a>
+
     <hr>
     """
 
@@ -399,69 +288,102 @@ def tournament():
             else hero2
         )
 
-        output += f"""
-        <div style="
-            background:#222;
-            margin:15px;
-            padding:15px;
-            border-radius:10px;
+       output += f"""
+<div style="
+
+    background:#1e293b;
+
+    color:#f8fafc;
+
+    margin:15px;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    border:2px solid #38bdf8;
+
+    box-shadow:0 0 10px #38bdf8;
+
+">
+
+    <h3>
+        {hero1['name']}
+        VS
+        {hero2['name']}
+    </h3>
+
+    <p>
+        {hero1['name']} Power:
+        {hero1['total_power']}
+    </p>
+
+    <p>
+        {hero2['name']} Power:
+        {hero2['total_power']}
+    </p>
+
+    <p>
+        Winner:
+        <span style="
+            color:#22c55e;
+            font-weight:bold;
         ">
+            {winner['name']}
+        </span>
+    </p>
 
-            <h3>
-                {hero1['name']}
-                VS
-                {hero2['name']}
-            </h3>
-
-            <p>
-                Winner:
-                <b>{winner['name']}</b>
-            </p>
-
-        </div>
-        """
+</div>
+"""
 
         contestants.append(winner)
 
     champion = contestants[0]
 
     output += f"""
-    <hr>
 
-    <h1 style="color:gold;">
-        🏆 Tournament Champion
-    </h1>
+    <div class="champion">
 
-    <h2>{champion['name']}</h2>
+        <h1>🏆 TOURNAMENT CHAMPION 🏆</h1>
 
-    <p>Class: {champion['class']}</p>
+        <h2>{champion['name']}</h2>
 
-    <p>Total Power: {champion['total_power']}</p>
+        <p>Class: {champion['class']}</p>
+
+        <p>Power: {champion['power']}</p>
+
+        <p>Total Power: {champion['total_power']}</p>
+
+    </div>
+
+    </body>
+    </html>
     """
 
     return output
 
+@app.route("/team")
+def team():
 
-@app.route("/logs")
-def logs():
+    if not characters:
+        return jsonify({"message": "No characters found"})
 
-    try:
+    total_power = sum(
+        c.total_power() for c in characters.values()
+    )
 
-        with open("hero_logs.txt", "r") as file:
-            return f"<pre>{file.read()}</pre>"
+    avg_level = (
+        sum(c.level for c in characters.values())
+        / len(characters)
+    )
 
-    except FileNotFoundError:
-
-        return """
-        <h1>No logs found.</h1>
-        <a href="/">Home</a>
-        """
+    return jsonify({
+        "members": [c.name for c in characters.values()],
+        "team_size": len(characters),
+        "total_power": total_power,
+        "average_level": round(avg_level, 1)
+    })
 
 
 if __name__ == "__main__":
-
-    app.run(
-        host="0.0.0.0",
-        port=10000,
-        debug=True
-    )
+    app.run(host="0.0.0.0", port=8080, debug=True)
