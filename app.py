@@ -86,22 +86,20 @@ def home():
         power = POWER_MAP.get(hero_class, "Unknown")
 
         total_power = (
-            strength
-            + intelligence
-            + agility
-            + endurance
+            strength +
+            intelligence +
+            agility +
+            endurance
         )
 
-        titles = [
+        hero_title = random.choice([
             "Storm Guardian",
             "Shadow Walker",
             "Dragon Slayer",
             "Light Bringer",
             "Arcane Master",
             "Iron Defender"
-        ]
-
-        hero_title = random.choice(titles)
+        ])
 
         biography = (
             f"{name} the {hero_title} is a "
@@ -149,11 +147,8 @@ def home():
             <h3>Stats</h3>
 
             <p>💪 Strength: {strength}</p>
-
             <p>🧠 Intelligence: {intelligence}</p>
-
             <p>🏃 Agility: {agility}</p>
-
             <p>🛡 Endurance: {endurance}</p>
 
             <p><b>Total Power:</b> {total_power}</p>
@@ -170,60 +165,64 @@ def home():
     return f"""
     <!DOCTYPE html>
     <html>
+
     <head>
 
-    <title>Hero Identity Generator</title>
+        <title>Hero Identity Generator</title>
 
-    <style>
+        <style>
 
-    body {{
-        background: #0d1117;
-        color: white;
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 30px;
-    }}
+            body {{
+                background:#0d1117;
+                color:white;
+                font-family:Arial;
+                text-align:center;
+                padding:30px;
+            }}
 
-    .container {{
-        max-width: 900px;
-        margin: auto;
-        background: #161b22;
-        padding: 25px;
-        border-radius: 15px;
-    }}
+            .container {{
+                max-width:900px;
+                margin:auto;
+                background:#161b22;
+                padding:25px;
+                border-radius:15px;
+            }}
 
-    input, select {{
-        width: 80%;
-        padding: 12px;
-        margin: 8px;
-        border-radius: 8px;
-        border: none;
-    }}
+            input,select {{
+                width:80%;
+                padding:12px;
+                margin:8px;
+                border:none;
+                border-radius:8px;
+            }}
 
-    button {{
-        background: #dc2626;
-        color: white;
-        padding: 12px 30px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-    }}
+            button {{
+                background:#dc2626;
+                color:white;
+                padding:12px 30px;
+                border:none;
+                border-radius:8px;
+                cursor:pointer;
+            }}
 
-    .card {{
-        margin-top: 20px;
-        background: #21262d;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: left;
-    }}
+            button:hover {{
+                background:#b91c1c;
+            }}
 
-    a {{
-        color: gold;
-        text-decoration: none;
-        font-size: 18px;
-    }}
+            .card {{
+                margin-top:20px;
+                background:#21262d;
+                padding:20px;
+                border-radius:12px;
+                text-align:left;
+            }}
 
-    </style>
+            a {{
+                color:gold;
+                text-decoration:none;
+            }}
+
+        </style>
 
     </head>
 
@@ -231,73 +230,78 @@ def home():
 
     <div class="container">
 
-    <h1>⚔ Hero Identity Generator ⚔</h1>
+        <h1>⚔ Hero Identity Generator ⚔</h1>
 
-    <p>Create your unique hero identity.</p>
+        <p>Create your unique hero identity.</p>
 
-    <form method="POST">
+        <form method="POST">
 
-        <input
-            type="text"
-            name="name"
-            placeholder="Hero Name"
-            required
-        >
+            <input
+                type="text"
+                name="name"
+                placeholder="Hero Name"
+                required
+            >
+
+            <br>
+
+            <select name="class">
+                <option>Warrior</option>
+                <option>Mage</option>
+                <option>Ranger</option>
+                <option>Paladin</option>
+                <option>Assassin</option>
+            </select>
+
+            <br>
+
+            <select name="trait">
+                <option>Brave</option>
+                <option>Wise</option>
+                <option>Mysterious</option>
+                <option>Loyal</option>
+                <option>Fearless</option>
+            </select>
+
+            <br>
+
+            <select name="weapon">
+                <option>Sword</option>
+                <option>Bow</option>
+                <option>Staff</option>
+                <option>Dagger</option>
+                <option>Hammer</option>
+            </select>
+
+            <br><br>
+
+            <button type="submit">
+                Generate Hero
+            </button>
+
+        </form>
 
         <br>
 
-        <select name="class">
-            <option>Warrior</option>
-            <option>Mage</option>
-            <option>Ranger</option>
-            <option>Paladin</option>
-            <option>Assassin</option>
-        </select>
-
-        <br>
-
-        <select name="trait">
-            <option>Brave</option>
-            <option>Wise</option>
-            <option>Mysterious</option>
-            <option>Loyal</option>
-            <option>Fearless</option>
-        </select>
-
-        <br>
-
-        <select name="weapon">
-            <option>Sword</option>
-            <option>Bow</option>
-            <option>Staff</option>
-            <option>Dagger</option>
-            <option>Hammer</option>
-        </select>
+        <a href="/heroes">Hero Registry</a>
 
         <br><br>
 
-        <button type="submit">
-            Generate Hero
-        </button>
+        <a href="/battle">Battle Arena</a>
 
-    </form>
+        <br><br>
 
-    <br>
+        <a href="/tournament">Tournament Mode</a>
 
-    <a href="/heroes">Hero Registry</a>
-    <br><br>
+        <br><br>
 
-    <a href="/battle">Battle Arena</a>
-    <br><br>
+        <a href="/logs">Hero Logs</a>
 
-    <a href="/logs">Hero Logs</a>
-
-    {result}
+        {result}
 
     </div>
 
     </body>
-
     </html>
     """
 
@@ -307,13 +311,18 @@ def heroes_page():
 
     output = """
     <h1>Hero Registry</h1>
-    <a href="/">Home</a><hr>
+    <a href="/">Home</a>
+    <hr>
     """
 
     for hero in heroes.values():
 
         output += f"""
-        <div style="margin:20px;padding:15px;border:1px solid white;">
+        <div style="
+            margin:20px;
+            padding:15px;
+            border:1px solid white;
+        ">
             <h2>{hero['name']}</h2>
             <p>Class: {hero['class']}</p>
             <p>Power: {hero['power']}</p>
@@ -327,74 +336,57 @@ def heroes_page():
 @app.route("/battle")
 def battle():
 
-    if len(heroes) < 2:
+    hero_names = list(heroes.keys())
+
+    if len(hero_names) < 2:
+
         return """
         <h1>Create at least two heroes first.</h1>
         <a href="/">Home</a>
         """
 
-    battle_results = """
-    <h1>⚔ Grand Battle Arena ⚔</h1>
-    """
+    hero1 = heroes[hero_names[0]]
+    hero2 = heroes[hero_names[1]]
 
-    sorted_heroes = sorted(
-        heroes.values(),
-        key=lambda hero: hero["total_power"],
-        reverse=True
+    winner = (
+        hero1
+        if hero1["total_power"] > hero2["total_power"]
+        else hero2
     )
 
-    for hero in sorted_heroes:
+    return f"""
+    <h1>⚔ Battle Arena ⚔</h1>
 
-        battle_results += f"""
-        <div style="
-            background:#222;
-            padding:15px;
-            margin:10px;
-            border-radius:10px;
-        ">
-            <h2>{hero['name']}</h2>
+    <h2>{hero1['name']} VS {hero2['name']}</h2>
 
-            <p>Class: {hero['class']}</p>
+    <p>{hero1['name']} Power: {hero1['total_power']}</p>
+    <p>{hero2['name']} Power: {hero2['total_power']}</p>
 
-            <p>Power: {hero['power']}</p>
-
-            <p>Total Power: {hero['total_power']}</p>
-        </div>
-        """
-
-    champion = sorted_heroes[0]
-
-    battle_results += f"""
-    <hr>
-
-    <h1 style="color:gold;">
-        🏆 Arena Champion
-    </h1>
-
-    <h2>{champion['name']}</h2>
-
-    <p>Class: {champion['class']}</p>
-
-    <p>Total Power: {champion['total_power']}</p>
-
-    <br>
+    <h1>🏆 Winner: {winner['name']}</h1>
 
     <a href="/">Home</a>
     """
 
-    return battle_results
 
 @app.route("/tournament")
 def tournament():
 
     if len(heroes) < 2:
-        return "Need at least two heroes."
+
+        return """
+        <h1>Create at least two heroes first.</h1>
+        <a href="/">Home</a>
+        """
 
     contestants = list(heroes.values())
 
     random.shuffle(contestants)
 
-    output = "<h1>⚔ Hero Tournament ⚔</h1>"
+    output = """
+    <h1>⚔ HERO TOURNAMENT ⚔</h1>
+    <a href="/">Home</a>
+    <hr>
+    """
 
     while len(contestants) > 1:
 
@@ -408,20 +400,25 @@ def tournament():
         )
 
         output += f"""
-        <div>
+        <div style="
+            background:#222;
+            margin:15px;
+            padding:15px;
+            border-radius:10px;
+        ">
 
-        <h3>
-        {hero1['name']}
-        VS
-        {hero2['name']}
-        </h3>
+            <h3>
+                {hero1['name']}
+                VS
+                {hero2['name']}
+            </h3>
 
-        Winner:
-        <b>{winner['name']}</b>
+            <p>
+                Winner:
+                <b>{winner['name']}</b>
+            </p>
 
         </div>
-
-        <hr>
         """
 
         contestants.append(winner)
@@ -429,15 +426,22 @@ def tournament():
     champion = contestants[0]
 
     output += f"""
-    <h1>
-    🏆 Tournament Champion:
-    {champion['name']}
+    <hr>
+
+    <h1 style="color:gold;">
+        🏆 Tournament Champion
     </h1>
 
-    <a href="/">Home</a>
+    <h2>{champion['name']}</h2>
+
+    <p>Class: {champion['class']}</p>
+
+    <p>Total Power: {champion['total_power']}</p>
     """
 
     return output
+
+
 @app.route("/logs")
 def logs():
 
@@ -455,6 +459,7 @@ def logs():
 
 
 if __name__ == "__main__":
+
     app.run(
         host="0.0.0.0",
         port=10000,
