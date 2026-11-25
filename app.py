@@ -1,155 +1,64 @@
-from flask import Flask, request, render_template_string, jsonify
-import random
-from datetime import datetime
+@app.route("/heroes")
+def heroes_page():
 
-app = Flask(__name__)
-
-characters = {}
-
-
-class Character:
-    """Represents a hero character with stats and progression."""
-
-    def __init__(self, name: str, power: str):
-        self.name = name
-        self.power = power
-        self.level = 1
-        self.experience = 0
-
-        self.stats = {
-            "strength": random.randint(5, 20),
-            "intelligence": random.randint(5, 20),
-            "agility": random.randint(5, 20),
-            "endurance": random.randint(5, 20),
-        }
-
-        self.created_date = datetime.now().isoformat()
-
-    def gain_experience(self, amount):
-        self.experience += amount
-
-        if self.experience >= 100:
-            levels = self.experience // 100
-            self.level += levels
-            self.experience %= 100
-
-            for stat in self.stats:
-                self.stats[stat] += random.randint(1, 3)
-
-            return f"{self.name} leveled up to Level {self.level}!"
-
-        return None
-
-    def total_power(self):
-        return sum(self.stats.values()) + (self.level * 10)
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "power": self.power,
-            "level": self.level,
-            "experience": self.experience,
-            "stats": self.stats,
-            "created_date": self.created_date,
-            "total_power": self.total_power()
-        }
-
-
-@app.route("/")
-def home():
-    html = """
-    <!DOCTYPE html>
+    output = """
     <html>
-    <head>
-        <title>Character Builder</title>
-        <style>
-            body{
-                font-family:Arial,sans-serif;
-                max-width:900px;
-                margin:auto;
-                padding:20px;
-                background:#121212;
-                color:white;
-            }
-            input,button{
-                padding:10px;
-                margin:5px;
-            }
-            .card{
-                border:1px solid #444;
-                padding:15px;
-                margin-top:15px;
-                border-radius:10px;
-                background:#1f1f1f;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>⚔️ Character Builder ⚔️</h1>
+    <body style="
+        background:#0d1117;
+        color:white;
+        font-family:Arial;
+        text-align:center;
+        padding:20px;
+    ">
 
-        <form action="/create" method="post">
-            <input name="name" placeholder="Hero Name" required>
-            <input name="power" placeholder="Power" required>
-            <button type="submit">Create Character</button>
-        </form>
+    <h1>⚔ Hero Registry ⚔</h1>
 
-        <h2>Characters</h2>
+    <a href="/">Home</a>
 
-        {% for character in characters %}
-        <div class="card">
-            <h3>{{ character.name }}</h3>
-            <p><b>Power:</b> {{ character.power }}</p>
-            <p><b>Level:</b> {{ character.level }}</p>
-            <p><b>Total Power:</b> {{ character.total_power() }}</p>
+    <hr>
+    """
+
+    if not characters:
+        output += "<h3>No heroes created yet.</h3>"
+
+    for character in characters.values():
+
+        output += f"""
+        <div style="
+            background:#21262d;
+            padding:15px;
+            margin:15px auto;
+            border-radius:12px;
+            border:1px solid #444;
+            max-width:700px;
+        ">
+            <h2>{character.name}</h2>
+
+            <p>Power: {character.power}</p>
+
+            <p>Level: {character.level}</p>
+
+            <p>Total Power: {character.total_power()}</p>
+
         </div>
-        {% endfor %}
-    </body>
-    </html>
-    """
+        """
 
-    return render_template_string(
-        html,
-        characters=characters.values()
-    )
+    output += "</body></html>"
 
-
-@app.route("/create", methods=["POST"])
-def create_character():
-    name = request.form.get("name")
-    power = request.form.get("power")
-
-    character = Character(name, power)
-
-    characters[name] = character
-
-    return f"""
-    <h1>{name} Created!</h1>
-
-    <p>Power: {power}</p>
-
-    <p>Strength: {character.stats['strength']}</p>
-    <p>Intelligence: {character.stats['intelligence']}</p>
-    <p>Agility: {character.stats['agility']}</p>
-    <p>Endurance: {character.stats['endurance']}</p>
-
-    <a href="/">Back</a>
-    """
-
-
-@app.route("/api/characters")
-def get_characters():
-    return jsonify([
-        char.to_dict()
-        for char in characters.values()
-    ])
+    return output
 
 
 @app.route("/battle")
 def battle():
+
     names = list(characters.keys())
 
     if len(names) < 2:
-        return "Create at least two characters first."
+
+        return """
+        <h1>Create at least two heroes first.</h1>
+        <a href="/">Home</a>
+        """
 
     char1 = characters[names[0]]
     char2 = characters[names[1]]
@@ -157,20 +66,39 @@ def battle():
     power1 = char1.total_power()
     power2 = char2.total_power()
 
-    winner = char1 if power1 > power2 else char2
+    winner = char1 if power1 >= power2 else char2
 
-    experience_gain = 50 + (winner.level * 10)
+    return f"""
+    <html>
 
-    winner.gain_experience(experience_gain)
+    <body style="
+        background:#020617;
+        color:white;
+        font-family:Arial;
+        text-align:center;
+        padding:20px;
+    ">
 
-    return {
-        "character_1": char1.name,
-        "character_2": char2.name,
-        "power_1": power1,
-        "power_2": power2,
-        "winner": winner.name,
-        "experience_awarded": experience_gain
-    }
+    <h1>⚔ Battle Arena ⚔</h1>
+
+    <h2>{char1.name} VS {char2.name}</h2>
+
+    <p>{char1.name}: {power1}</p>
+
+    <p>{char2.name}: {power2}</p>
+
+    <h2 style="color:#22c55e;">
+        Winner: {winner.name}
+    </h2>
+
+    <a href="/">Home</a>
+
+    </body>
+
+    </html>
+    """
+
+
 @app.route("/tournament")
 def tournament():
 
@@ -184,7 +112,7 @@ def tournament():
             text-align:center;
             font-family:Arial;
         ">
-            <h1>Create at least two characters first.</h1>
+            <h1>Create at least two heroes first.</h1>
             <a href="/">Home</a>
         </body>
         </html>
@@ -199,12 +127,6 @@ def tournament():
 
     output = """
     <html>
-
-    <head>
-
-    <title>Hero Tournament</title>
-
-    </head>
 
     <body style="
         background:#020617;
@@ -230,10 +152,11 @@ def tournament():
         hero1 = contestants.pop(0)
         hero2 = contestants.pop(0)
 
-        if hero1["total_power"] >= hero2["total_power"]:
-            winner = hero1
-        else:
-            winner = hero2
+        winner = (
+            hero1
+            if hero1["total_power"] >= hero2["total_power"]
+            else hero2
+        )
 
         output += f"""
         <div style="
@@ -305,28 +228,44 @@ def tournament():
 
     return output
 
-@app.route("/team")
-def team():
 
-    if not characters:
-        return jsonify({"message": "No characters found"})
+@app.route("/logs")
+def logs():
 
-    total_power = sum(
-        c.total_power() for c in characters.values()
-    )
+    try:
 
-    avg_level = (
-        sum(c.level for c in characters.values())
-        / len(characters)
-    )
+        with open("hero_logs.txt", "r") as file:
 
-    return jsonify({
-        "members": [c.name for c in characters.values()],
-        "team_size": len(characters),
-        "total_power": total_power,
-        "average_level": round(avg_level, 1)
-    })
+            return f"""
+            <html>
 
+            <body style="
+                background:#000814;
+                color:#7dd3fc;
+                font-family:Consolas;
+                padding:20px;
+            ">
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+            <h1 style="color:gold;">
+                📜 Hero Logs
+            </h1>
+
+            <pre>
+{file.read()}
+            </pre>
+
+            <a href="/" style="color:gold;">
+                Home
+            </a>
+
+            </body>
+
+            </html>
+            """
+
+    except FileNotFoundError:
+
+        return """
+        <h1>No logs found.</h1>
+        <a href="/">Home</a>
+        """
