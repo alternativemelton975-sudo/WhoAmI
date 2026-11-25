@@ -175,104 +175,39 @@ def battle():
 def tournament():
 
     if len(heroes) < 2:
-
         return """
         <html>
-        <body style="
-            background:#020617;
-            color:white;
-            text-align:center;
-            font-family:Arial;
-        ">
+        <body style='background:#020617;color:white;text-align:center;font-family:Arial;'>
             <h1>Create at least two heroes first.</h1>
-            <a href="/" style="color:gold;">Home</a>
+            <a href='/'>Home</a>
         </body>
         </html>
         """
 
     contestants = list(heroes.values())
-
     random.shuffle(contestants)
 
     output = """
     <html>
-
     <head>
-
-    <style>
-
-    body{
-        background:#020617;
-        color:white;
-        font-family:Arial,sans-serif;
-        text-align:center;
-        padding:20px;
-    }
-
-    h1{
-        color:#38bdf8;
-    }
-
-    a{
-        color:gold;
-        text-decoration:none;
-        font-size:18px;
-    }
-
-    hr{
-        border:1px solid #38bdf8;
-    }
-
-    .battle-card{
-
-        background:#1e293b;
-
-        color:#f8fafc;
-
-        margin:15px auto;
-
-        padding:20px;
-
-        max-width:800px;
-
-        border-radius:12px;
-
-        border:2px solid #38bdf8;
-
-        box-shadow:0 0 10px #38bdf8;
-    }
-
-    .winner{
-        color:#22c55e;
-        font-weight:bold;
-    }
-
-    .champion{
-
-        background:#451a03;
-
-        color:white;
-
-        padding:25px;
-
-        margin-top:30px;
-
-        border-radius:15px;
-
-        border:3px solid gold;
-
-        box-shadow:0 0 15px gold;
-    }
-
-    </style>
-
+        <title>Hero Tournament</title>
     </head>
 
-    <body>
+    <body style="
+        background:#020617;
+        color:white;
+        font-family:Arial;
+        text-align:center;
+        padding:20px;
+    ">
 
-    <h1>⚔ HERO TOURNAMENT ⚔</h1>
+    <h1 style="color:#38bdf8;">
+        ⚔ HERO TOURNAMENT ⚔
+    </h1>
 
-    <a href="/">⬅ Home</a>
+    <a href="/" style="color:gold;">
+        Home
+    </a>
 
     <hr>
     """
@@ -282,85 +217,63 @@ def tournament():
         hero1 = contestants.pop(0)
         hero2 = contestants.pop(0)
 
-        winner = (
-            hero1
-            if hero1["total_power"] >= hero2["total_power"]
-            else hero2
-        )
+        if hero1["total_power"] >= hero2["total_power"]:
+            winner = hero1
+        else:
+            winner = hero2
 
-       output += f"""
-<div style="
-
-    background:#1e293b;
-
-    color:#f8fafc;
-
-    margin:15px;
-
-    padding:15px;
-
-    border-radius:12px;
-
-    border:2px solid #38bdf8;
-
-    box-shadow:0 0 10px #38bdf8;
-
-">
-
-    <h3>
-        {hero1['name']}
-        VS
-        {hero2['name']}
-    </h3>
-
-    <p>
-        {hero1['name']} Power:
-        {hero1['total_power']}
-    </p>
-
-    <p>
-        {hero2['name']} Power:
-        {hero2['total_power']}
-    </p>
-
-    <p>
-        Winner:
-        <span style="
-            color:#22c55e;
-            font-weight:bold;
+        output += f"""
+        <div style="
+            background:#1e293b;
+            color:#f8fafc;
+            margin:15px auto;
+            padding:15px;
+            border-radius:12px;
+            border:2px solid #38bdf8;
+            box-shadow:0 0 10px #38bdf8;
+            max-width:700px;
         ">
-            {winner['name']}
-        </span>
-    </p>
 
-</div>
-"""
+            <h3>
+                {hero1['name']} VS {hero2['name']}
+            </h3>
+
+            <p>
+                {hero1['name']} Power:
+                {hero1['total_power']}
+            </p>
+
+            <p>
+                {hero2['name']} Power:
+                {hero2['total_power']}
+            </p>
+
+            <p>
+                Winner:
+                <span style="color:#22c55e;font-weight:bold;">
+                    {winner['name']}
+                </span>
+            </p>
+
+        </div>
+        """
 
         contestants.append(winner)
 
     champion = contestants[0]
 
     output += f"""
+    <div style="
+        background:#451a03;
+        color:white;
+        margin:25px auto;
+        padding:25px;
+        border-radius:15px;
+        border:3px solid gold;
+        max-width:700px;
+    ">
 
-    <div class="champion">
-
-        <h1>🏆 TOURNAMENT CHAMPION 🏆</h1>
-
-        <h2>{champion['name']}</h2>
-
-        <p>Class: {champion['class']}</p>
-
-        <p>Power: {champion['power']}</p>
-
-        <p>Total Power: {champion['total_power']}</p>
-
-    </div>
-
-    </body>
-    </html>
-    """
-
-    return output
+      
 
 @app.route("/team")
 def team():
