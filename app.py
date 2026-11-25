@@ -327,38 +327,62 @@ def heroes_page():
 @app.route("/battle")
 def battle():
 
-    hero_names = list(heroes.keys())
-
-    if len(hero_names) < 2:
-
+    if len(heroes) < 2:
         return """
         <h1>Create at least two heroes first.</h1>
         <a href="/">Home</a>
         """
 
-    hero1 = heroes[hero_names[0]]
-    hero2 = heroes[hero_names[1]]
+    battle_results = """
+    <h1>⚔ Grand Battle Arena ⚔</h1>
+    """
 
-    power1 = hero1["total_power"]
-    power2 = hero2["total_power"]
+    sorted_heroes = sorted(
+        heroes.values(),
+        key=lambda hero: hero["total_power"],
+        reverse=True
+    )
 
-    winner = hero1 if power1 > power2 else hero2
+    for hero in sorted_heroes:
 
-    return f"""
-    <h1>⚔ Battle Arena ⚔</h1>
+        battle_results += f"""
+        <div style="
+            background:#222;
+            padding:15px;
+            margin:10px;
+            border-radius:10px;
+        ">
+            <h2>{hero['name']}</h2>
 
-    <h2>{hero1['name']} VS {hero2['name']}</h2>
+            <p>Class: {hero['class']}</p>
 
-    <p>{hero1['name']} Power: {power1}</p>
+            <p>Power: {hero['power']}</p>
 
-    <p>{hero2['name']} Power: {power2}</p>
+            <p>Total Power: {hero['total_power']}</p>
+        </div>
+        """
 
-    <h1>🏆 Winner: {winner['name']}</h1>
+    champion = sorted_heroes[0]
+
+    battle_results += f"""
+    <hr>
+
+    <h1 style="color:gold;">
+        🏆 Arena Champion
+    </h1>
+
+    <h2>{champion['name']}</h2>
+
+    <p>Class: {champion['class']}</p>
+
+    <p>Total Power: {champion['total_power']}</p>
 
     <br>
 
     <a href="/">Home</a>
     """
+
+    return battle_results
 
 
 @app.route("/logs")
