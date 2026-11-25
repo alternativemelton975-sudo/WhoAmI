@@ -211,7 +211,7 @@ def home():
 
             .card {{
                 margin-top:20px;
-                background:#21262d;
+                background:Crimson;
                 padding:20px;
                 border-radius:12px;
                 text-align:left;
