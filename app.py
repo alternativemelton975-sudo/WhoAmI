@@ -384,7 +384,60 @@ def battle():
 
     return battle_results
 
+@app.route("/tournament")
+def tournament():
 
+    if len(heroes) < 2:
+        return "Need at least two heroes."
+
+    contestants = list(heroes.values())
+
+    random.shuffle(contestants)
+
+    output = "<h1>⚔ Hero Tournament ⚔</h1>"
+
+    while len(contestants) > 1:
+
+        hero1 = contestants.pop(0)
+        hero2 = contestants.pop(0)
+
+        winner = (
+            hero1
+            if hero1["total_power"] >= hero2["total_power"]
+            else hero2
+        )
+
+        output += f"""
+        <div>
+
+        <h3>
+        {hero1['name']}
+        VS
+        {hero2['name']}
+        </h3>
+
+        Winner:
+        <b>{winner['name']}</b>
+
+        </div>
+
+        <hr>
+        """
+
+        contestants.append(winner)
+
+    champion = contestants[0]
+
+    output += f"""
+    <h1>
+    🏆 Tournament Champion:
+    {champion['name']}
+    </h1>
+
+    <a href="/">Home</a>
+    """
+
+    return output
 @app.route("/logs")
 def logs():
 
