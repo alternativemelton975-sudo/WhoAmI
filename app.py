@@ -1,49 +1,96 @@
-from flask import Flask, jsonify
-import rcs
-from IdentityCreator import IdentityCreator
+from flask import Flask
+import random
 
 app = Flask(__name__)
 
+names = [
+    "Aria", "Drake", "Nova", "Phoenix", "Kai",
+    "Luna", "Atlas", "Shadow", "Blaze", "Orion"
+]
 
-def create_identity(name):
-    return IdentityCreator(name)
+classes = [
+    "Warrior",
+    "Mage",
+    "Ranger",
+    "Paladin",
+    "Assassin"
+]
+
+traits = [
+    "Brave",
+    "Clever",
+    "Mysterious",
+    "Loyal",
+    "Fearless"
+]
 
 
 @app.route("/")
-def home():
-    process = create_identity("Identity")
+def create_character():
+    character = {
+        "name": random.choice(names),
+        "class": random.choice(classes),
+        "trait": random.choice(traits),
+        "level": random.randint(1, 100)
+    }
 
-    process.set_input("input", "Hello, World!")
-    process.process()
+    return f"""
+    <html>
+    <head>
+        <title>Character Creator</title>
+        <style>
+            body {{
+                background-color: #121212;
+                color: white;
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding-top: 50px;
+            }}
 
-    output = process.get_output("output")
-    output_color = process.get_output_color("output")
+            .card {{
+                width: 400px;
+                margin: auto;
+                background: #222;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 0 15px red;
+            }}
 
-    return jsonify({
-        "name": process.name,
-        "output": output,
-        "output_color": output_color
-    })
+            h1 {{
+                color: #ff4444;
+            }}
+
+            button {{
+                padding: 10px 20px;
+                background: red;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>Random Character</h1>
+            <h2>{character["name"]}</h2>
+            <p><strong>Class:</strong> {character["class"]}</p>
+            <p><strong>Trait:</strong> {character["trait"]}</p>
+            <p><strong>Level:</strong> {character["level"]}</p>
+
+            <br>
+
+            <button onclick="window.location.reload();">
+                Generate New Character
+            </button>
+        </div>
+    </body>
+    </html>
+    """
 
 
-@app.route("/test")
-def test():
-    process = create_identity("Identity")
-
-    process.set_input("input", "Testing Flask")
-    process.process()
-
-    json_data = process.to_json()
-
-    loaded_process = rcs.Creator.from_json(json_data)
-    loaded_process.process()
-
-    return jsonify({
-        "original_output": process.get_output("output"),
-        "loaded_output": loaded_process.get_output("output"),
-        "json": json_data
-    })
-
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
