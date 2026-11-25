@@ -1,7 +1,10 @@
 from flask import Flask, request
+from datetime import datetime
 import random
 
 app = Flask(__name__)
+
+heroes = {}
 
 POWER_MAP = {
     "Warrior": "Lightning",
@@ -10,6 +13,22 @@ POWER_MAP = {
     "Paladin": "Holy Light",
     "Assassin": "Shadow"
 }
+
+
+def write_log(hero):
+
+    with open("hero_logs.txt", "a") as log:
+
+        log.write("\n")
+        log.write("=" * 50 + "\n")
+        log.write(f"Created: {datetime.now()}\n")
+        log.write(f"Hero: {hero['name']}\n")
+        log.write(f"Class: {hero['class']}\n")
+        log.write(f"Trait: {hero['trait']}\n")
+        log.write(f"Weapon: {hero['weapon']}\n")
+        log.write(f"Power: {hero['power']}\n")
+        log.write(f"Total Power: {hero['total_power']}\n")
+        log.write("=" * 50 + "\n")
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -91,8 +110,26 @@ def home():
             f"{weapon.lower()}."
         )
 
+        hero_data = {
+            "name": name,
+            "class": hero_class,
+            "trait": trait,
+            "weapon": weapon,
+            "power": power,
+            "strength": strength,
+            "intelligence": intelligence,
+            "agility": agility,
+            "endurance": endurance,
+            "total_power": total_power
+        }
+
+        heroes[name] = hero_data
+
+        write_log(hero_data)
+
         result = f"""
         <div class="card">
+
             <h2>⚔ HERO IDENTITY REPORT ⚔</h2>
 
             <h1>{name}</h1>
@@ -126,137 +163,138 @@ def home():
             <h3>Biography</h3>
 
             <p>{biography}</p>
+
         </div>
         """
 
     return f"""
     <!DOCTYPE html>
     <html>
-
     <head>
 
-        <title>Hero Identity Generator</title>
+    <title>Hero Identity Generator</title>
 
-        <style>
+    <style>
 
-            body {{
-                background: #0d1117;
-                color: white;
-                font-family: Arial, sans-serif;
-                text-align: center;
-                padding: 30px;
-            }}
+    body {{
+        background: #0d1117;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 30px;
+    }}
 
-            .container {{
-                max-width: 900px;
-                margin: auto;
-                background: #161b22;
-                padding: 25px;
-                border-radius: 15px;
-            }}
+    .container {{
+        max-width: 900px;
+        margin: auto;
+        background: #161b22;
+        padding: 25px;
+        border-radius: 15px;
+    }}
 
-            input, select {{
-                width: 80%;
-                padding: 12px;
-                margin: 8px;
-                border-radius: 8px;
-                border: none;
-            }}
+    input, select {{
+        width: 80%;
+        padding: 12px;
+        margin: 8px;
+        border-radius: 8px;
+        border: none;
+    }}
 
-            button {{
-                background: #dc2626;
-                color: white;
-                padding: 12px 30px;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 16px;
-            }}
+    button {{
+        background: #dc2626;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }}
 
-            button:hover {{
-                background: #b91c1c;
-            }}
+    .card {{
+        margin-top: 20px;
+        background: #21262d;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: left;
+    }}
 
-            .card {{
-                margin-top: 20px;
-                background: #21262d;
-                padding: 20px;
-                border-radius: 12px;
-                text-align: left;
-            }}
+    a {{
+        color: gold;
+        text-decoration: none;
+        font-size: 18px;
+    }}
 
-            hr {{
-                border: 1px solid #444;
-            }}
-
-        </style>
+    </style>
 
     </head>
 
     <body>
 
-        <div class="container">
+    <div class="container">
 
-            <h1>⚔ Hero Identity Generator ⚔</h1>
+    <h1>⚔ Hero Identity Generator ⚔</h1>
 
-            <p>Create your unique hero identity.</p>
+    <p>Create your unique hero identity.</p>
 
-            <form method="POST">
+    <form method="POST">
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Hero Name"
-                    required
-                >
+        <input
+            type="text"
+            name="name"
+            placeholder="Hero Name"
+            required
+        >
 
-                <br>
+        <br>
 
-                <select name="class">
+        <select name="class">
+            <option>Warrior</option>
+            <option>Mage</option>
+            <option>Ranger</option>
+            <option>Paladin</option>
+            <option>Assassin</option>
+        </select>
 
-                    <option>Warrior</option>
-                    <option>Mage</option>
-                    <option>Ranger</option>
-                    <option>Paladin</option>
-                    <option>Assassin</option>
+        <br>
 
-                </select>
+        <select name="trait">
+            <option>Brave</option>
+            <option>Wise</option>
+            <option>Mysterious</option>
+            <option>Loyal</option>
+            <option>Fearless</option>
+        </select>
 
-                <br>
+        <br>
 
-                <select name="trait">
+        <select name="weapon">
+            <option>Sword</option>
+            <option>Bow</option>
+            <option>Staff</option>
+            <option>Dagger</option>
+            <option>Hammer</option>
+        </select>
 
-                    <option>Brave</option>
-                    <option>Wise</option>
-                    <option>Mysterious</option>
-                    <option>Loyal</option>
-                    <option>Fearless</option>
+        <br><br>
 
-                </select>
+        <button type="submit">
+            Generate Hero
+        </button>
 
-                <br>
+    </form>
 
-                <select name="weapon">
+    <br>
 
-                    <option>Sword</option>
-                    <option>Bow</option>
-                    <option>Staff</option>
-                    <option>Dagger</option>
-                    <option>Hammer</option>
+    <a href="/heroes">Hero Registry</a>
+    <br><br>
 
-                </select>
+    <a href="/battle">Battle Arena</a>
+    <br><br>
 
-                <br><br>
+    <a href="/logs">Hero Logs</a>
 
-                <button type="submit">
-                    Generate Hero
-                </button>
+    {result}
 
-            </form>
-
-            {result}
-
-        </div>
+    </div>
 
     </body>
 
@@ -264,5 +302,84 @@ def home():
     """
 
 
+@app.route("/heroes")
+def heroes_page():
+
+    output = """
+    <h1>Hero Registry</h1>
+    <a href="/">Home</a><hr>
+    """
+
+    for hero in heroes.values():
+
+        output += f"""
+        <div style="margin:20px;padding:15px;border:1px solid white;">
+            <h2>{hero['name']}</h2>
+            <p>Class: {hero['class']}</p>
+            <p>Power: {hero['power']}</p>
+            <p>Total Power: {hero['total_power']}</p>
+        </div>
+        """
+
+    return output
+
+
+@app.route("/battle")
+def battle():
+
+    hero_names = list(heroes.keys())
+
+    if len(hero_names) < 2:
+
+        return """
+        <h1>Create at least two heroes first.</h1>
+        <a href="/">Home</a>
+        """
+
+    hero1 = heroes[hero_names[0]]
+    hero2 = heroes[hero_names[1]]
+
+    power1 = hero1["total_power"]
+    power2 = hero2["total_power"]
+
+    winner = hero1 if power1 > power2 else hero2
+
+    return f"""
+    <h1>⚔ Battle Arena ⚔</h1>
+
+    <h2>{hero1['name']} VS {hero2['name']}</h2>
+
+    <p>{hero1['name']} Power: {power1}</p>
+
+    <p>{hero2['name']} Power: {power2}</p>
+
+    <h1>🏆 Winner: {winner['name']}</h1>
+
+    <br>
+
+    <a href="/">Home</a>
+    """
+
+
+@app.route("/logs")
+def logs():
+
+    try:
+
+        with open("hero_logs.txt", "r") as file:
+            return f"<pre>{file.read()}</pre>"
+
+    except FileNotFoundError:
+
+        return """
+        <h1>No logs found.</h1>
+        <a href="/">Home</a>
+        """
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(
+        host="0.0.0.0",
+        port=10000,
+        debug=True
+    )
