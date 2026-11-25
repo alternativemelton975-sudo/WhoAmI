@@ -11,149 +11,148 @@ class Character:
 
     def __init__(self, name, power):
 
-    self.name = name
-    self.power = power
+        self.name = name
+        self.power = power
 
-    self.level = 1
-    self.experience = 0
+        self.level = 1
+        self.experience = 0
 
-    self.character_class = random.choice([
-        "Warrior",
-        "Mage",
-        "Ranger",
-        "Paladin",
-        "Assassin"
-    ])
+        self.character_class = random.choice([
+            "Warrior",
+            "Mage",
+            "Ranger",
+            "Paladin",
+            "Assassin"
+        ])
 
-    self.rarity = random.choices(
-        ["Common", "Rare", "Epic", "Legendary", "Mythic"],
-        weights=[50, 30, 15, 4, 1]
-    )[0]
+        self.rarity = random.choices(
+            ["Common", "Rare", "Epic", "Legendary", "Mythic"],
+            weights=[50, 30, 15, 4, 1]
+        )[0]
 
-    class_stats = {
-        "Warrior": {
-            "strength": random.randint(15, 30),
-            "intelligence": random.randint(5, 15),
-            "agility": random.randint(10, 20),
-            "endurance": random.randint(15, 30)
-        },
-        "Mage": {
-            "strength": random.randint(5, 15),
-            "intelligence": random.randint(20, 35),
-            "agility": random.randint(10, 20),
-            "endurance": random.randint(5, 15)
-        },
-        "Ranger": {
-            "strength": random.randint(10, 20),
-            "intelligence": random.randint(10, 20),
-            "agility": random.randint(20, 35),
-            "endurance": random.randint(10, 20)
-        },
-        "Paladin": {
-            "strength": random.randint(15, 25),
-            "intelligence": random.randint(15, 25),
-            "agility": random.randint(10, 20),
-            "endurance": random.randint(20, 35)
-        },
-        "Assassin": {
-            "strength": random.randint(10, 20),
-            "intelligence": random.randint(10, 20),
-            "agility": random.randint(25, 40),
-            "endurance": random.randint(10, 20)
+        class_stats = {
+
+            "Warrior": {
+                "strength": random.randint(15, 30),
+                "intelligence": random.randint(5, 15),
+                "agility": random.randint(10, 20),
+                "endurance": random.randint(15, 30)
+            },
+
+            "Mage": {
+                "strength": random.randint(5, 15),
+                "intelligence": random.randint(20, 35),
+                "agility": random.randint(10, 20),
+                "endurance": random.randint(5, 15)
+            },
+
+            "Ranger": {
+                "strength": random.randint(10, 20),
+                "intelligence": random.randint(10, 20),
+                "agility": random.randint(20, 35),
+                "endurance": random.randint(10, 20)
+            },
+
+            "Paladin": {
+                "strength": random.randint(15, 25),
+                "intelligence": random.randint(15, 25),
+                "agility": random.randint(10, 20),
+                "endurance": random.randint(20, 35)
+            },
+
+            "Assassin": {
+                "strength": random.randint(10, 20),
+                "intelligence": random.randint(10, 20),
+                "agility": random.randint(25, 40),
+                "endurance": random.randint(10, 20)
+            }
         }
-    }
 
-    self.stats = class_stats[self.character_class]
+        self.stats = class_stats[self.character_class]
 
-    rarity_bonus = {
-        "Common": 0,
-        "Rare": 3,
-        "Epic": 6,
-        "Legendary": 10,
-        "Mythic": 20
-    }
+        rarity_bonus = {
+            "Common": 0,
+            "Rare": 3,
+            "Epic": 6,
+            "Legendary": 10,
+            "Mythic": 20
+        }
 
-    bonus = rarity_bonus[self.rarity]
-
-    for stat in self.stats:
-        self.stats[stat] += bonus
-
-    self.exp_requirement = {
-        "Warrior": 100,
-        "Mage": 120,
-        "Ranger": 90,
-        "Paladin": 110,
-        "Assassin": 80
-    }[self.character_class]
-
-    self.exp_multiplier = {
-        "Warrior": 1.0,
-        "Mage": 0.9,
-        "Ranger": 1.2,
-        "Paladin": 0.8,
-        "Assassin": 1.5
-    }[self.character_class]
-
-    self.created_date = datetime.now().isoformat()
-
-
-    
-    def total_power(self):
-        return sum(self.stats.values()) + (self.level * 10)
-def to_dict(self):
-    return {
-        "name": self.name,
-        "power": self.power,
-        "class": self.character_class,
-        "rarity": self.rarity,
-        "level": self.level,
-        "experience": self.experience,
-        "stats": self.stats,
-        "created_date": self.created_date,
-        "total_power": self.total_power()
-    }
-
-def gain_experience(self, amount):
-
-    adjusted_exp = int(
-        amount * self.exp_multiplier
-    )
-
-    self.experience += adjusted_exp
-
-    leveled_up = False
-
-    while self.experience >= self.exp_requirement:
-
-        self.experience -= self.exp_requirement
-
-        self.level += 1
-
-        leveled_up = True
+        bonus = rarity_bonus[self.rarity]
 
         for stat in self.stats:
+            self.stats[stat] += bonus
 
-            if self.rarity == "Mythic":
+        self.exp_requirement = {
+            "Warrior": 100,
+            "Mage": 120,
+            "Ranger": 90,
+            "Paladin": 110,
+            "Assassin": 80
+        }[self.character_class]
 
-                self.stats[stat] += random.randint(4, 8)
+        self.exp_multiplier = {
+            "Warrior": 1.0,
+            "Mage": 0.9,
+            "Ranger": 1.2,
+            "Paladin": 0.8,
+            "Assassin": 1.5
+        }[self.character_class]
 
-            elif self.rarity == "Legendary":
+        self.created_date = datetime.now().isoformat()
 
-                self.stats[stat] += random.randint(3, 6)
+    def total_power(self):
+        return sum(self.stats.values()) + (self.level * 10)
 
-            elif self.rarity == "Epic":
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "power": self.power,
+            "class": self.character_class,
+            "rarity": self.rarity,
+            "level": self.level,
+            "experience": self.experience,
+            "stats": self.stats,
+            "created_date": self.created_date,
+            "total_power": self.total_power()
+        }
 
-                self.stats[stat] += random.randint(2, 5)
+    def gain_experience(self, amount):
 
-            else:
+        adjusted_exp = int(
+            amount * self.exp_multiplier
+        )
 
-                self.stats[stat] += random.randint(1, 3)
+        self.experience += adjusted_exp
 
-    if leveled_up:
+        leveled_up = False
 
-        return f"{self.name} reached Level {self.level}!"
+        while self.experience >= self.exp_requirement:
 
-    return None
+            self.experience -= self.exp_requirement
+
+            self.level += 1
+
+            leveled_up = True
+
+            for stat in self.stats:
+
+                if self.rarity == "Mythic":
+                    self.stats[stat] += random.randint(4, 8)
+
+                elif self.rarity == "Legendary":
+                    self.stats[stat] += random.randint(3, 6)
+
+                elif self.rarity == "Epic":
+                    self.stats[stat] += random.randint(2, 5)
+
+                else:
+                    self.stats[stat] += random.randint(1, 3)
+
+        if leveled_up:
+            return f"{self.name} reached Level {self.level}!"
+
+        return None
 
 def write_log(character):
 
@@ -312,7 +311,6 @@ def create_character():
 
 
 @app.route("/heroes")
-@app.route("/heroes")
 def heroes():
 
     output = """
@@ -401,7 +399,6 @@ def heroes():
 
     return output
 
-
 @app.route("/battle")
 def battle():
 
@@ -416,14 +413,16 @@ def battle():
     power1 = char1.total_power()
     power2 = char2.total_power()
 
-   winner = char1 if power1 >= power2 else char2
+    winner = char1 if power1 >= power2 else char2
 
-experience_gain = random.randint(
-    25,
-    100 + (winner.level * 10)
-)
+    experience_gain = random.randint(
+        25,
+        100 + (winner.level * 10)
+    )
 
-winner.gain_experience(experience_gain)
+    level_message = winner.gain_experience(
+        experience_gain
+    )
 
     return f"""
     <html>
@@ -447,14 +446,47 @@ winner.gain_experience(experience_gain)
         Winner: {winner.name}
     </h2>
 
-    <a href="/">Home</a>
+    <p>
+        Experience Awarded:
+        {experience_gain}
+    </p>
+
+    <p>
+        Current XP:
+        {winner.experience}
+        /
+        {winner.exp_requirement}
+    </p>
+
+    <p>
+        Winner Level:
+        {winner.level}
+    </p>
+
+    <p>
+        Class:
+        {winner.character_class}
+    </p>
+
+    <p>
+        Rarity:
+        {winner.rarity}
+    </p>
+
+    <p style="color:gold;">
+        {level_message or ""}
+    </p>
+
+    <br>
+
+    <a href="/" style="color:gold;">
+        Home
+    </a>
 
     </body>
 
     </html>
     """
-
-
 @app.route("/tournament")
 def tournament():
 
