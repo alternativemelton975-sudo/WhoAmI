@@ -1,50 +1,49 @@
+from flask import Flask, jsonify
 import rcs
+from IdentityCreator import IdentityCreator
 
-class IdentityCreator(rcs.Creator):
-    def __init__(self, name):
-        super().__init__(name)
-
-        # Define input/output ports
-        self.add_input("input", rcs.SignalType("any"))
-        self.add_output("output", rcs.SignalType("any"))
-
-        # Assign color to the output port
-        self.set_output_color("output", (255, 25, 25))
-
-    def process(self):
-        input_signal = self.get_input("input")
-        self.set_output("output", input_signal)
+app = Flask(__name__)
 
 
 def create_identity(name):
     return IdentityCreator(name)
 
 
-# -----------------------------
-# Runtime test
-# -----------------------------
-process = create_identity("Identity")
+@app.route("/")
+def home():
+    process = create_identity("Identity")
 
-process.set_input("input", "Hello, World!")
-process.process()
+    process.set_input("input", "Hello, World!")
+    process.process()
 
-output = process.get_output("output")
-print(output)  # Should print "Hello, World!"
+    output = process.get_output("output")
+    output_color = process.get_output_color("output")
 
-output_color = process.get_output_color("output")
-print(output_color)  # Should print (255, 25, 25)
+    return jsonify({
+        "name": process.name,
+        "output": output,
+        "output_color": output_color
+    })
 
-json_data = process.to_json()
-print(json_data)
 
-with open("identity_process.json", "w") as f:
-    f.write(json_data)
+@app.route("/test")
+def test():
+    process = create_identity("Identity")
 
-with open("identity_process.json", "r") as f:
-    json_data = f.read()
+    process.set_input("input", "Testing Flask")
+    process.process()
 
-loaded_process = rcs.Creator.from_json(json_data)
-loaded_process.process()
+    json_data = process.to_json()
 
-loaded_output = loaded_process.get_output("output")
-print(loaded_output)  # Should print "Hello, World!"
+    loaded_process = rcs.Creator.from_json(json_data)
+    loaded_process.process()
+
+    return jsonify({
+        "original_output": process.get_output("output"),
+        "loaded_output": loaded_process.get_output("output"),
+        "json": json_data
+    })
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
