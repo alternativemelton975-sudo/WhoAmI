@@ -1,131 +1,80 @@
 from flask import Flask, request
-import requests
-import base64
-import os
 
 app = Flask(__name__)
-
-HF_TOKEN = os.environ.get("HF_TOKEN", "")
-
-API_URL = (
-    "https://api-inference.huggingface.co/models/"
-    "stabilityai/stable-diffusion-xl-base-1.0"
-)
-
-HEADERS = {
-    "Authorization": f"Bearer {HF_TOKEN}"
-}
-
 
 @app.route("/", methods=["GET", "POST"])
 def home():
 
-    image = ""
+    result = ""
 
     if request.method == "POST":
-
         name = request.form.get("name")
         character_class = request.form.get("class")
         trait = request.form.get("trait")
         weapon = request.form.get("weapon")
 
-        prompt = (
-            f"{name}, "
-            f"{trait} fantasy {character_class}, "
-            f"holding a {weapon}, "
-            f"highly detailed fantasy character, "
-            f"character portrait, cinematic lighting, "
-            f"epic fantasy art, masterpiece"
-        )
-
-        try:
-            response = requests.post(
-                API_URL,
-                headers=HEADERS,
-                json={"inputs": prompt},
-                timeout=180
-            )
-
-            if response.status_code == 200:
-
-                img_base64 = base64.b64encode(
-                    response.content
-                ).decode("utf-8")
-
-                image = f"""
-                <h2>{name}</h2>
-                <img src="data:image/png;base64,{img_base64}"
-                     style="max-width:600px;
-                            width:100%;
-                            border-radius:15px;">
-                """
-
-            else:
-                image = (
-                    f"<p>Generation failed. "
-                    f"Status: {response.status_code}</p>"
-                )
-
-        except Exception as e:
-            image = f"<p>Error: {str(e)}</p>"
+        result = f"""
+        <div class="card">
+            <h2>{name}</h2>
+            <p><b>Class:</b> {character_class}</p>
+            <p><b>Trait:</b> {trait}</p>
+            <p><b>Weapon:</b> {weapon}</p>
+        </div>
+        """
 
     return f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>AI Character Creator</title>
+        <title>Character Creator</title>
 
         <style>
+            body {{
+                background: #111;
+                color: white;
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 30px;
+            }}
 
-        body {{
-            background:#111;
-            color:white;
-            font-family:Arial;
-            text-align:center;
-            padding:30px;
-        }}
+            .container {{
+                max-width: 800px;
+                margin: auto;
+                background: #222;
+                padding: 20px;
+                border-radius: 15px;
+            }}
 
-        .container {{
-            max-width:900px;
-            margin:auto;
-            background:#222;
-            padding:25px;
-            border-radius:15px;
-        }}
+            input, select {{
+                width: 80%;
+                padding: 10px;
+                margin: 8px;
+                border-radius: 5px;
+                border: none;
+            }}
 
-        input, select {{
-            width:80%;
-            padding:12px;
-            margin:8px;
-            border-radius:8px;
-            border:none;
-        }}
+            button {{
+                background: red;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+            }}
 
-        button {{
-            background:#ff3333;
-            color:white;
-            border:none;
-            padding:12px 20px;
-            border-radius:8px;
-            cursor:pointer;
-        }}
-
-        button:hover {{
-            background:#ff5555;
-        }}
-
-        img {{
-            margin-top:20px;
-        }}
-
+            .card {{
+                margin-top: 20px;
+                padding: 15px;
+                background: #333;
+                border-radius: 10px;
+            }}
         </style>
     </head>
-
     <body>
 
         <div class="container">
 
-            <h1>AI Character Creator</h1>
+            <h1>Character Creator</h1>
 
             <form method="POST">
 
@@ -140,4 +89,47 @@ def home():
 
                 <select name="class">
                     <option>Warrior</option>
-                    <option
+                    <option>Mage</option>
+                    <option>Ranger</option>
+                    <option>Paladin</option>
+                    <option>Assassin</option>
+                </select>
+
+                <br>
+
+                <select name="trait">
+                    <option>Brave</option>
+                    <option>Wise</option>
+                    <option>Mysterious</option>
+                    <option>Loyal</option>
+                    <option>Fearless</option>
+                </select>
+
+                <br>
+
+                <select name="weapon">
+                    <option>Sword</option>
+                    <option>Bow</option>
+                    <option>Staff</option>
+                    <option>Dagger</option>
+                    <option>Hammer</option>
+                </select>
+
+                <br><br>
+
+                <button type="submit">
+                    Create Character
+                </button>
+
+            </form>
+
+            {result}
+
+        </div>
+
+    </body>
+    </html>
+    """
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
