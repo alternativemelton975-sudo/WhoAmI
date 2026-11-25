@@ -1,88 +1,138 @@
 from flask import Flask, request
+import requests
+import base64
+import os
 
 app = Flask(__name__)
+
+API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}"
+}
+
 
 @app.route("/", methods=["GET", "POST"])
 def home():
 
-    character_html = ""
+    image_html = ""
 
     if request.method == "POST":
-        name = request.form.get("name")
-        character_class = request.form.get("class")
-        trait = request.form.get("trait")
-        weapon = request.form.get("weapon")
 
-        character_html = f"""
-        <div class="card result">
-            <h2>{name}</h2>
-            <p><strong>Class:</strong> {character_class}</p>
-            <p><strong>Trait:</strong> {trait}</p>
-            <p><strong>Weapon:</strong> {weapon}</p>
-        </div>
-        """
+        name = request.form["name"]
+        character_class = request.form["class"]
+        trait = request.form["trait"]
+        weapon = request.form["weapon"]
+
+        prompt = (
+            f"fantasy character named {name}, "
+            f"{trait} {character_class}, "
+            f"holding a {weapon}, "
+            f"highly detailed fantasy art, "
+            f"character portrait, cinematic lighting, "
+            f"professional digital painting"
+        )
+
+        try:
+            response = requests.post(
+                API_URL,
+                headers=headers,
+                json={"inputs": prompt},
+                timeout=120
+            )
+
+            if response.status_code == 200:
+
+                image_base64 = base64.b64encode(
+                    response.content
+                ).decode("utf-8")
+
+                image_html = f"""
+                <h2>{name}</h2>
+                <img
+                    src="data:image/png;base64,{image_base64}"
+                    width="512"
+                    style="border-radius:15px;"
+                >
+                """
+
+            else:
+                image_html = f"""
+                <p>
+                    Image generation failed.
+                    Status: {response.status_code}
+                </p>
+                """
+
+        except Exception as e:
+            image_html = f"<p>Error: {e}</p>"
 
     return f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Character Creator</title>
+        <title>AI Character Creator</title>
 
         <style>
-            body {{
-                background:#121212;
-                color:white;
-                font-family:Arial,sans-serif;
-                text-align:center;
-                padding:40px;
-            }}
 
-            .card {{
-                max-width:500px;
-                margin:auto;
-                background:#222;
-                padding:25px;
-                border-radius:15px;
-                box-shadow:0 0 15px red;
-            }}
+        body {{
+            background:#111;
+            color:white;
+            text-align:center;
+            font-family:Arial;
+            padding:30px;
+        }}
 
-            input, select {{
-                width:90%;
-                padding:10px;
-                margin:10px;
-                border:none;
-                border-radius:5px;
-            }}
+        .container {{
+            max-width:800px;
+            margin:auto;
+            background:#222;
+            padding:20px;
+            border-radius:15px;
+        }}
 
-            button {{
-                background:red;
-                color:white;
-                border:none;
-                padding:12px 20px;
-                border-radius:8px;
-                cursor:pointer;
-            }}
+        input, select {{
+            width:80%;
+            padding:10px;
+            margin:8px;
+            border-radius:8px;
+            border:none;
+        }}
 
-            .result {{
-                margin-top:25px;
-            }}
+        button {{
+            background:red;
+            color:white;
+            padding:12px 20px;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+        }}
+
+        img {{
+            margin-top:20px;
+            max-width:100%;
+        }}
+
         </style>
     </head>
 
     <body>
 
-        <div class="card">
+        <div class="container">
 
-            <h1>Character Creator</h1>
+            <h1>AI Character Creator</h1>
 
-            <form method="POST">
+            <form method="post">
 
                 <input
-                    type="text"
                     name="name"
                     placeholder="Character Name"
                     required
                 >
+
+                <br>
 
                 <select name="class">
                     <option>Warrior</option>
@@ -92,6 +142,8 @@ def home():
                     <option>Assassin</option>
                 </select>
 
+                <br>
+
                 <select name="trait">
                     <option>Brave</option>
                     <option>Wise</option>
@@ -99,6 +151,8 @@ def home():
                     <option>Loyal</option>
                     <option>Fearless</option>
                 </select>
+
+                <br>
 
                 <select name="weapon">
                     <option>Sword</option>
@@ -111,18 +165,19 @@ def home():
                 <br><br>
 
                 <button type="submit">
-                    Create Character
+                    Generate Character
                 </button>
 
             </form>
 
-            {character_html}
+            {image_html}
 
         </div>
 
     </body>
     </html>
     """
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
