@@ -174,23 +174,36 @@ def battle():
 @app.route("/tournament")
 def tournament():
 
-    if len(heroes) < 2:
+    if len(characters) < 2:
+
         return """
         <html>
-        <body style='background:#020617;color:white;text-align:center;font-family:Arial;'>
-            <h1>Create at least two heroes first.</h1>
-            <a href='/'>Home</a>
+        <body style="
+            background:#020617;
+            color:white;
+            text-align:center;
+            font-family:Arial;
+        ">
+            <h1>Create at least two characters first.</h1>
+            <a href="/">Home</a>
         </body>
         </html>
         """
 
-    contestants = list(heroes.values())
+    contestants = [
+        character.to_dict()
+        for character in characters.values()
+    ]
+
     random.shuffle(contestants)
 
     output = """
     <html>
+
     <head>
-        <title>Hero Tournament</title>
+
+    <title>Hero Tournament</title>
+
     </head>
 
     <body style="
@@ -250,7 +263,10 @@ def tournament():
 
             <p>
                 Winner:
-                <span style="color:#22c55e;font-weight:bold;">
+                <span style="
+                    color:#22c55e;
+                    font-weight:bold;
+                ">
                     {winner['name']}
                 </span>
             </p>
@@ -273,7 +289,21 @@ def tournament():
         max-width:700px;
     ">
 
-      
+        <h1 style="color:gold;">
+            🏆 Tournament Champion 🏆
+        </h1>
+
+        <h2>{champion['name']}</h2>
+
+        <p>Total Power: {champion['total_power']}</p>
+
+    </div>
+
+    </body>
+    </html>
+    """
+
+    return output
 
 @app.route("/team")
 def team():
